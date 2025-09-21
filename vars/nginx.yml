@@ -1,0 +1,4 @@
+nginx_images_root: /var/www/images
+nginx_listen_port: 80
+nginx_gzip: true
+nginx_cache_control: "max-age=3600"

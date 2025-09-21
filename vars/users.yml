@@ -1,0 +1,12 @@
+users:
+  groups:
+    - developers
+  accounts:
+    - name: devops
+      shell: /bin/bash
+      state: present
+      password: "{{ 'devops' | password_hash('sha512') }}"
+      ssh_public_key: ""
+      groups:
+        - sudo
+        - developers

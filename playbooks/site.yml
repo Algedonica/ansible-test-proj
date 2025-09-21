@@ -1,0 +1,15 @@
+- hosts: static
+  become: true
+  vars_files:
+    - ../vars/users.yml
+    - ../vars/packages.yml
+    - ../vars/ssh.yml
+    - ../vars/nginx.yml
+    - ../vars/static.yml
+  roles:
+    - role: common/packages
+    - role: system/users
+    - role: system/zsh
+    - role: system/ssh
+    - role: web/nginx
+    - role: web/static

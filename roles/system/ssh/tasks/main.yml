@@ -1,0 +1,21 @@
+---
+- name: Ensure openssh-server installed
+  apt:
+    name: openssh-server
+    state: present
+
+- name: Apply sshd_config settings
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^{{ item.key }}\s+'
+    line: '{{ item.key }} {{ item.value }}'
+    state: present
+    create: no
+    backrefs: no
+  loop: "{{ sshd_config | dict2items }}"
+
+- name: Ensure sshd enabled and running
+  service:
+    name: ssh
+    state: started
+

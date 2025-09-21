@@ -1,0 +1,14 @@
+server {
+    listen {{ nginx_listen_port }} default_server;
+    server_name _;
+
+    root {{ nginx_images_root }};
+
+    location /images/ {
+        alias {{ nginx_images_root }}/;
+        autoindex on;
+        add_header Cache-Control "{{ nginx_cache_control }}";
+        access_log /var/log/nginx/images_access.log;
+        error_log  /var/log/nginx/images_error.log;
+    }
+}

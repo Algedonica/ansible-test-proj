@@ -1,0 +1,9 @@
+services:
+  target:
+    build: .
+    container_name: ansible-static-target
+    ports:
+      - "2222:22"
+      - "8080:80"
+    tty: true
+    restart: unless-stopped

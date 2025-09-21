@@ -1,0 +1,27 @@
+---
+- name: "Ensure user {{ user_item.name }} state"
+  user:
+    name: "{{ user_item.name }}"
+    state: "{{ user_item.state | default('present') }}"
+    shell: "{{ user_item.shell | default('/bin/bash') }}"
+    password: "{{ user_item.password | default(omit) }}"
+    groups: "{{ (user_item.groups | default([])) | join(',') if user_item.groups is defined else omit }}"
+    append: yes
+
+- name: "Ensure .ssh directory exists for {{ user_item.name }}"
+  file:
+    path: "/home/{{ user_item.name }}/.ssh"
+    state: directory
+    owner: "{{ user_item.name }}"
+    group: "{{ user_item.name }}"
+    mode: '0700'
+  when: user_item.state | default('present') == 'present' and (user_item.ssh_public_key | default('')) | length > 0
+
+- name: "Install authorized_keys for {{ user_item.name }}"
+  copy:
+    dest: "/home/{{ user_item.name }}/.ssh/authorized_keys"
+    content: "{{ user_item.ssh_public_key }}\n"
+    owner: "{{ user_item.name }}"
+    group: "{{ user_item.name }}"
+    mode: '0600'
+  when: user_item.state | default('present') == 'present' and (user_item.ssh_public_key | default('')) | length > 0

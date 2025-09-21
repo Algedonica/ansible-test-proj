@@ -1,0 +1,24 @@
+---
+- name: Install zsh dependencies
+  apt:
+    name: ["zsh", "git", "curl"]
+    state: present
+
+- name: Gather users needing zsh
+  set_fact:
+    zsh_users: "{{ users.accounts | selectattr('shell','defined') | selectattr('shell','equalto','/bin/zsh') | list }}"
+
+- name: Install oh-my-zsh for users with zsh
+  become: true
+  become_user: "{{ item.name }}"
+  shell: |
+    set -e
+    export RUNZSH=no
+    export CHSH=no
+    if [ ! -d "$HOME/.oh-my-zsh" ]; then
+      sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" || true
+    fi
+  args:
+    executable: /bin/bash
+  when: zsh_users | length > 0
+  loop: "{{ zsh_users }}"

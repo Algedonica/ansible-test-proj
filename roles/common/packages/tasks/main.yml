@@ -1,0 +1,28 @@
+---
+- name: Ensure software-properties-common present (for add-apt-repository)
+  apt:
+    name: software-properties-common
+    state: present
+    update_cache: yes
+
+- name: Enable Ubuntu Universe repository
+  command: add-apt-repository -y universe
+  args:
+    creates: /etc/apt/sources.list.d/ubuntu.sources
+  register: universe_added
+  changed_when: universe_added.rc == 0
+  failed_when: false
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Upgrade packages
+  apt:
+    upgrade: safe
+
+- name: Install common packages
+  apt:
+    name: "{{ packages_common }}"
+    state: present

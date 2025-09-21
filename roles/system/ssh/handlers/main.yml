@@ -1,0 +1,10 @@
+---
+- name: Restart sshd
+  shell: |
+    if pidof sshd >/dev/null 2>&1; then
+      kill -HUP $(pidof sshd)
+    else
+      /usr/sbin/sshd -D -e &
+    fi
+  args:
+    executable: /bin/bash

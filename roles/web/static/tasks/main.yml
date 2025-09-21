@@ -1,0 +1,49 @@
+---
+- name: Ensure images root exists
+  file:
+    path: "{{ nginx_images_root }}"
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: '0755'
+
+- name: Check if local images dir exists in role
+  debug:
+    msg: "Skipping explicit stat of role files on remote; using fileglob lookup instead"
+
+- name: Copy local images from role files
+  copy:
+    src: images/
+    dest: "{{ nginx_images_root }}/"
+    owner: www-data
+    group: www-data
+    mode: '0644'
+    directory_mode: '0755'
+  when: lookup('ansible.builtin.fileglob', role_path + '/files/images/*', wantlist=True) | length > 0
+
+- name: Download sample images archive (if url provided)
+  get_url:
+    url: "{{ static_images_url }}"
+    dest: /tmp/images.zip
+    mode: '0644'
+  when: static_images_url is defined and static_images_url|length > 0
+
+- name: Unpack images archive
+  unarchive:
+    src: /tmp/images.zip
+    dest: "{{ nginx_images_root }}"
+    remote_src: yes
+  when: static_images_url is defined and static_images_url|length > 0
+
+- name: Check images presence after copy/unarchive
+  find:
+    paths: "{{ nginx_images_root }}"
+    file_type: file
+  register: images_found
+
+- name: Create placeholder when images directory is empty
+  copy:
+    dest: "{{ nginx_images_root }}/README.txt"
+    content: |
+      Place your images here. Access via /images/ on port {{ nginx_listen_port }}.
+  when: images_found.matched | default(0) == 0

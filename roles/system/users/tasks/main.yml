@@ -1,0 +1,12 @@
+---
+- name: Ensure custom groups exist
+  group:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ users.groups | default([]) }}"
+
+- name: Manage user accounts
+  include_tasks: user.yml
+  loop: "{{ users.accounts | default([]) }}"
+  loop_control:
+    loop_var: user_item
